@@ -451,175 +451,165 @@ class ShoeDetailPage extends StatelessWidget {
     final shoe = shoes[index];
 
     return Scaffold(
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          image: DecorationImage(image: AssetImage(""), fit: BoxFit.cover),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-              height: 400,
-              width: double.infinity,
-              color: Colors.blue,
+      backgroundColor: Colors.blue,
+      body: Column(
+        children: [
+          Expanded(
+            flex: 2, // Adjust flex value as needed
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                image: DecorationImage(
+                  image: AssetImage(""), // Provide a valid image path if needed
+                  fit: BoxFit.cover,
+                ),
+              ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: BackButton()),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 30),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.menu,
-                            size: 35,
-                          ),
-                          onPressed: () {
-                            // Handle menu button press
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Image.asset(
-                      shoe['image'],
-                      height: 280,
-                      width: 280,
-                      fit: BoxFit.cover,
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: BackButton(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 30),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.menu,
+                              size: 35,
+                            ),
+                            onPressed: () {
+                              // Handle menu button press
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Image.asset(
+                        shoe['image'],
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(
-              height: 30,
-            ),
-            ClipRRect(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(30)),
-                child: Container(
-                  height: 450,
-                  width: double.infinity,
-                  color: Colors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 40, left: 50),
-                        child: Text(
-                          shoe['title'],
+          ),
+          SizedBox(height: 30),
+          Expanded(
+            flex: 3, // Adjust flex value as needed
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(30),
+              ),
+              child: Container(
+                color: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      shoe['title'],
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          shoe['subtitle'],
                           style: const TextStyle(
                             color: Colors.black,
-                            fontSize: 24,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "\$${shoe['price'].toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Product Description",
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 0, right: 50),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20, left: 50),
-                              child: Text(
-                                shoe['subtitle'],
-                                style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w400),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "It’s a long- and long-established fact that a reader will be distracted by the readable content of the page when looking at its layout.",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Spacer(), // Pushes the buttons to the bottom
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blue, width: 2),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          child: Icon(
+                            Icons.favorite,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Exam(),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20, left: 50),
+                            );
+                          },
+                          child: Container(
+                            height: 50,
+                            width: 150,
+                            color: Colors.blue,
+                            child: Center(
                               child: Text(
-                                "\$${shoe['price'].toStringAsFixed(2)}",
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20,
+                                "Add to cart",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 50, top: 30),
-                        child: Text(
-                          "Product Description",
-                          style: TextStyle(
-                              fontSize: 25, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 50, top: 30),
-                        child: Text(
-                          "It’s a long- and long-established fact that a reader will be distracted by the readable content of the page when looking at its layout.",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Container(
-                              height: 50,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: Colors.blue, width: 2),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
-                              child: Icon(
-                                Icons.favorite,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Exam()));
-                                },
-                                child: Container(
-                                  height: 50,
-                                  width: 150,
-                                  color: Colors.blue,
-                                  child: Center(
-                                    child: Text(
-                                      "Add to cart",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                )),
-          ],
-        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -673,16 +663,16 @@ class _ExamState extends State<Exam> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.grey,
+      ),
       backgroundColor: Colors.white70,
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(15),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(30),
             child: Container(
-              height: 420,
-              width: 430,
               color: Colors.white,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -696,90 +686,86 @@ class _ExamState extends State<Exam> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Divider(
                       color: Colors.black,
                     ),
                   ),
                   Padding(
-                    padding:
-                        const EdgeInsets.only(left: 30, right: 30, top: 20),
-                    child: TextField(
-                      controller: cardNumberController,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 10),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: cardNumberController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            hintText: "Card Number",
+                            suffixIcon: Icon(Icons.credit_card),
                           ),
-                          hintText: "Card Number",
-                          suffixIcon: Icon(Icons.date_range)),
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 30, right: 30, top: 20),
-                    child: TextField(
-                      controller: expiryDateController,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        SizedBox(height: 20),
+                        TextField(
+                          controller: expiryDateController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            hintText: "MM/YY",
+                            suffixIcon: Icon(Icons.date_range),
                           ),
-                          hintText: "MM/YY",
-                          suffixIcon: Icon(Icons.date_range)),
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 30, right: 30, top: 20),
-                    child: TextField(
-                      controller: cvvController,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        SizedBox(height: 20),
+                        TextField(
+                          controller: cvvController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            hintText: "CVV",
+                            suffixIcon: Icon(Icons.lock),
                           ),
-                          hintText: "CVV",
-                          suffixIcon: Icon(Icons.date_range)),
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 30, right: 30, top: 20),
-                    child: TextField(
-                      controller: cardHolderNameController,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        SizedBox(height: 20),
+                        TextField(
+                          controller: cardHolderNameController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            hintText: "Cardholder's Full Name",
+                            suffixIcon: Icon(Icons.person),
                           ),
-                          hintText: "Enter Cardholder's Full Name",
-                          suffixIcon: Icon(Icons.date_range)),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  InkWell(
-                    onTap: validateAndSubmit, // Trigger validation when tapped
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            color: Colors.blue,
-                            child: Center(
-                              child: Text(
-                                "Add card",
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
+                        ),
+                        SizedBox(height: 30),
+                        InkWell(
+                          onTap:
+                              validateAndSubmit, // Trigger validation when tapped
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              height: 50,
+                              width: double.infinity,
+                              color: Colors.blue,
+                              child: Center(
+                                child: Text(
+                                  "Add card",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ],
