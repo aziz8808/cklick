@@ -1,913 +1,577 @@
-import 'package:dars_1/animation%20and%20lotie.dart';
+import 'dart:convert';
+import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(debugShowCheckedModeBanner: false, home: Work()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Work extends StatefulWidget {
+  const Work({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false, // Remove the debug banner
-      home: const Myexam(),
-    );
+  State<Work> createState() => _WorkState();
+}
+
+class _WorkState extends State<Work> {
+  var kun = "";
+  var manzil = "";
+  var oy = "";
+  int vaqt = 0;
+
+  dynamic sana = "";
+  String bomdod = "";
+  String quyosh_chiqishi = "";
+  String peshin = "";
+  String asr = "";
+  String shom = "";
+  String xufton = "";
+  String city = "";
+  String? errorMessage;
+
+  // Qo'shimcha ma'lumotlar uchun o'zgaruvchilar
+  String saharlik = "";
+  String quyosh_botishi = "";
+  String yarim_tun = "";
+  String kechaning_birinchi_uchdanbiri = "";
+  String kechaning_oxirgi_uchdanbiri = "";
+  String hijriy_sana = "";
+  String hijriy_yil = "";
+  String hijriy_hafta_kuni_en = "";
+  String hijriy_hafta_kuni_ar = "";
+  String milodiy_sana = "";
+  String milodiy_oy = "";
+  String milodiy_yil = "";
+  String kenglik = "";
+  String uzunlik = "";
+  String hisoblash_usuli = "";
+  int hisoblash_usuli_id = 0;
+
+  void getdate(String city) async {
+    setState(() {
+      kun = "";
+      manzil = "";
+      oy = "";
+      vaqt = 0;
+      sana = "";
+      bomdod = "";
+      quyosh_chiqishi = "";
+      peshin = "";
+      asr = "";
+      shom = "";
+      xufton = "";
+      errorMessage = null;
+      // Qo'shimcha ma'lumotlarni ham tozalash
+      saharlik = "";
+      quyosh_botishi = "";
+      yarim_tun = "";
+      kechaning_birinchi_uchdanbiri = "";
+      kechaning_oxirgi_uchdanbiri = "";
+      hijriy_sana = "";
+      hijriy_yil = "";
+      hijriy_hafta_kuni_en = "";
+      hijriy_hafta_kuni_ar = "";
+      milodiy_sana = "";
+      milodiy_oy = "";
+      milodiy_yil = "";
+      kenglik = "";
+      uzunlik = "";
+      hisoblash_usuli = "";
+      hisoblash_usuli_id = 0;
+    });
+
+    try {
+      String encodedCity = Uri.encodeComponent(city);
+      String API =
+          "https://api.aladhan.com/v1/timingsByAddress/present?address=$city";
+      print("Requesting API: $API");
+
+      http.Response response = await http.get(Uri.parse(API));
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> kunvaqti = jsonDecode(response.body);
+
+        if (kunvaqti.containsKey("data")) {
+          setState(() {
+            // Asosiy ma'lumotlar
+            kun = kunvaqti["data"]["date"]["gregorian"]["weekday"]["en"];
+            manzil = kunvaqti["data"]["meta"]["timezone"];
+            sana = kunvaqti["data"]["date"]["readable"];
+            oy = kunvaqti["data"]["date"]["hijri"]["month"]["en"];
+            vaqt = int.parse(kunvaqti["data"]["date"]["hijri"]["day"]);
+
+            // Namoz vaqtlari
+            bomdod = kunvaqti["data"]["timings"]["Fajr"];
+            quyosh_chiqishi = kunvaqti["data"]["timings"]["Sunrise"];
+            peshin = kunvaqti["data"]["timings"]["Dhuhr"];
+            asr = kunvaqti["data"]["timings"]["Asr"];
+            shom = kunvaqti["data"]["timings"]["Maghrib"];
+            xufton = kunvaqti["data"]["timings"]["Isha"];
+
+            // Qo'shimcha ma'lumotlar
+            saharlik = kunvaqti["data"]["timings"]["Imsak"];
+            quyosh_botishi = kunvaqti["data"]["timings"]["Sunset"];
+            yarim_tun = kunvaqti["data"]["timings"]["Midnight"];
+            kechaning_birinchi_uchdanbiri =
+                kunvaqti["data"]["timings"]["Firstthird"];
+            kechaning_oxirgi_uchdanbiri =
+                kunvaqti["data"]["timings"]["Lastthird"];
+
+            // Hijriy sana ma'lumotlari
+            hijriy_sana = kunvaqti["data"]["date"]["hijri"]["date"];
+            hijriy_yil = kunvaqti["data"]["date"]["hijri"]["year"];
+            hijriy_hafta_kuni_en =
+                kunvaqti["data"]["date"]["hijri"]["weekday"]["en"];
+            hijriy_hafta_kuni_ar =
+                kunvaqti["data"]["date"]["hijri"]["weekday"]["ar"];
+
+            // Milodiy sana ma'lumotlari
+            milodiy_sana = kunvaqti["data"]["date"]["gregorian"]["date"];
+            milodiy_oy = kunvaqti["data"]["date"]["gregorian"]["month"]["en"];
+            milodiy_yil = kunvaqti["data"]["date"]["gregorian"]["year"];
+            milodiy_oy = kunvaqti["data"]["date"]["gregorian"]["month"]
+                    ["number"]
+                .toString();
+            // Joylashuv ma'lumotlari
+            kenglik = kunvaqti["data"]["meta"]["latitude"].toString();
+            uzunlik = kunvaqti["data"]["meta"]["longitude"].toString();
+
+            // Hisoblash usuli haqida ma'lumot
+            hisoblash_usuli = kunvaqti["data"]["meta"]["method"]["name"];
+            hisoblash_usuli_id = kunvaqti["data"]["meta"]["method"]["id"];
+
+            // Shahar nomi
+            this.city = city;
+          });
+          print("Data fetched successfully");
+        } else {
+          print("API response doesn't contain 'data' key");
+          print("Response body: ${response.body}");
+          setState(() {
+            errorMessage = "Invalid data received from server";
+          });
+        }
+      } else {
+        print("API request failed with status code: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        setState(() {
+          errorMessage = "Failed to fetch data. Please try again.";
+        });
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+      setState(() {
+        errorMessage = "An error occurred. Please try again.";
+      });
+    }
   }
-}
-
-class Myexam extends StatefulWidget {
-  const Myexam({Key? key}) : super(key: key);
-
-  @override
-  _MyexamState createState() => _MyexamState();
-}
-
-class _MyexamState extends State<Myexam> {
-  final TextEditingController _searchController = TextEditingController();
-
-  // List of shoes as Map
-  final List<Map<String, dynamic>> shoes = [
-    {
-      'title': 'Blue',
-      'subtitle': 'A pair',
-      'price': 210.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.blue,
-    },
-    {
-      'title': 'Grey',
-      'subtitle': 'A pair',
-      'price': 230.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.grey,
-    },
-    {
-      'title': 'Yellow',
-      'subtitle': 'A pair',
-      'price': 240.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.yellow,
-    },
-    {
-      'title': 'Pink',
-      'subtitle': 'A pair',
-      'price': 226.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.pink,
-    },
-    {
-      'title': 'Orange',
-      'subtitle': 'A pair',
-      'price': 248.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.orange,
-    },
-    {
-      'title': 'Purple',
-      'subtitle': 'A pair',
-      'price': 278.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.purple,
-    },
-    {
-      'title': 'Red',
-      'subtitle': 'A pair',
-      'price': 290.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.red,
-    },
-    {
-      'title': 'Teal',
-      'subtitle': 'A pair',
-      'price': 219.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.teal,
-    },
-    {
-      'title': 'Orange',
-      'subtitle': 'A pair',
-      'price': 268.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.orange,
-    },
-    {
-      'title': 'Purple',
-      'subtitle': 'A pair',
-      'price': 256.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.purple,
-    },
-    {
-      'title': 'Red',
-      'subtitle': 'A pair',
-      'price': 298.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.red,
-    },
-    {
-      'title': 'Teal',
-      'subtitle': 'A pair',
-      'price': 274.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.teal,
-    },
-    {
-      'title': 'Blue',
-      'subtitle': 'A pair',
-      'price': 218.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.blue,
-    },
-    {
-      'title': 'Grey',
-      'subtitle': 'A pair',
-      'price': 281.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.grey,
-    },
-    {
-      'title': 'Yellow',
-      'subtitle': 'A pair',
-      'price': 293.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.yellow,
-    },
-    {
-      'title': 'Pink',
-      'subtitle': 'A pair',
-      'price': 215.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.pink,
-    },
-    {
-      'title': 'Orange',
-      'subtitle': 'A pair',
-      'price': 282.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.orange,
-    },
-    {
-      'title': 'Purple',
-      'subtitle': 'A pair',
-      'price': 209.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.purple,
-    },
-    {
-      'title': 'Red',
-      'subtitle': 'A pair',
-      'price': 201.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.red,
-    },
-    {
-      'title': 'Teal',
-      'subtitle': 'A pair',
-      'price': 234.00,
-      'image': 'Images/png2.jpg',
-      'color': Colors.teal,
-    },
-  ];
-
-  List<Map<String, dynamic>> _filteredShoes = [];
-  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _filteredShoes = shoes; // Initially show all shoes
+    getdate("Qoqon");
+    updateTime();
   }
 
-  void _filterShoes(String query) {
+  DateTime currentTime = DateTime.now();
+
+  void updateTime() {
     setState(() {
-      if (query.isEmpty) {
-        _filteredShoes = shoes;
-      } else {
-        _filteredShoes = shoes
-            .where((shoe) =>
-                shoe['title'].toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
+      currentTime = DateTime.now();
     });
+    Future.delayed(Duration(seconds: 1), updateTime);
   }
 
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose(); // Dispose of the controller
-    super.dispose();
-  }
-
-  void _validateAndNavigate() {
-    final cardNumber = _controller.text;
-
-    if (cardNumber.isEmpty) {
-      // Show snackbar if the card number is empty
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a card number')),
-      );
-    } else {
-      // Navigate to another page with the card number
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AnotherPage(cardNumber: cardNumber),
-        ),
-      );
-    }
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  bool isClicked = false;
+  TextEditingController box = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _pages = [
-      _buildFavoritesPage(),
-      _buildHomePage(context),
-      _buildCartPage(),
-      _buildProfilePage(),
-    ];
-
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            // Handle back button press
-          },
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 30),
-            child: IconButton(
-              icon: Icon(
-                Icons.menu,
-                size: 35,
-              ),
-              onPressed: () {
-                // Handle menu button press
-              },
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(56.0),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.black, Colors.white],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
-        ],
+          child: AppBar(
+            centerTitle: true,
+            title: Text(
+              "Namoz vaqtlari",
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  fontFamily: "name2",
+                  color: Colors.white),
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
+        ),
       ),
-      body: SafeArea(
-        child: _pages[_selectedIndex], // Display the selected page
-      ),
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor:
-            Colors.white, // The background color behind the curved part
-        color: Colors.grey, // Color of the bar itself
-        buttonBackgroundColor: Colors.blue, // Background of the selected button
-        height: 60,
-        index: _selectedIndex, // Initially selected tab
-        items: <Widget>[
-          Icon(Icons.favorite, size: 30, color: Colors.white),
-          Icon(Icons.home, size: 30, color: Colors.white),
-          Icon(Icons.shopping_cart, size: 30, color: Colors.white),
-          Icon(Icons.more_horiz, size: 30, color: Colors.white),
-        ],
-        onTap: _onItemTapped,
-      ),
-    );
-  }
-
-  Widget _buildHomePage(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Row(
-            children: [
+      backgroundColor: Colors.black45,
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.black, Colors.white],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+              child: Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: TextField(
+                    controller: box,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            city = box.text;
+                            getdate(city);
+                          });
+                        },
+                        icon: Icon(
+                          Icons.search,
+                          color: Colors.amber,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.yellow)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (errorMessage != null)
               Padding(
-                padding: const EdgeInsets.only(top: 0, left: 10, bottom: 0),
-                child: Text(
-                  "Nike shoe store",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 0, right: 10, left: 10),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onChanged: _filterShoes,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: SingleChildScrollView(
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: _filteredShoes.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-                  childAspectRatio: 0.7,
-                ),
-                itemBuilder: (context, index) {
-                  final shoe = _filteredShoes[index];
-                  final color =
-                      shoe['color'] as Color; // Use the color from the map
-
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ShoeDetailPage(
-                            index: index,
-                            shoes: shoes,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: 20,
-                            left: 20,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  shoe['title'],
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  shoe['subtitle'],
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 20,
-                            left: 100,
-                            child: Text(
-                              "\$${shoe['price'].toStringAsFixed(2)}",
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const Positioned(
-                            top: 20,
-                            right: 20,
-                            child: Icon(
-                              Icons.check_circle,
-                              color: Colors.white,
-                              size: 40,
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 60, // Image slightly below container
-                            left: 80, // Image overflows outside the container
-                            child: Container(
-                              height: 150,
-                              width: 150,
-                              child: Image.asset(
-                                shoe['image'],
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFavoritesPage() {
-    return Center(child: Text("1 sahifa"));
-  }
-
-  Widget _buildCartPage() {
-    return Center(child: Text("2 sahifa"));
-  }
-
-  Widget _buildProfilePage() {
-    return Center(child: Text("3 sahifa"));
-  }
-}
-
-class ShoeDetailPage extends StatelessWidget {
-  final int index;
-  final List<Map<String, dynamic>> shoes;
-
-  const ShoeDetailPage({
-    Key? key,
-    required this.index,
-    required this.shoes,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final shoe = shoes[index];
-
-    return Scaffold(
-      backgroundColor: Colors.blue,
-      body: Column(
-        children: [
-          Expanded(
-            flex: 2, // Adjust flex value as needed
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                image: DecorationImage(
-                  image: AssetImage(""), // Provide a valid image path if needed
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: BackButton(),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 30),
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.menu,
-                              size: 35,
-                            ),
-                            onPressed: () {
-                              // Handle menu button press
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: Image.asset(
-                        shoe['image'],
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 30),
-          Expanded(
-            flex: 3, // Adjust flex value as needed
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(30),
-              ),
-              child: Container(
-                color: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      shoe['title'],
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          shoe['subtitle'],
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        Text(
-                          "\$${shoe['price'].toStringAsFixed(2)}",
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      "Product Description",
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      "It’s a long- and long-established fact that a reader will be distracted by the readable content of the page when looking at its layout.",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    Spacer(), // Pushes the buttons to the bottom
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.blue, width: 2),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                          child: Icon(
-                            Icons.favorite,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Exam(),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            height: 50,
-                            width: 150,
-                            color: Colors.blue,
-                            child: Center(
-                              child: Text(
-                                "Add to cart",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class Exam extends StatefulWidget {
-  const Exam({super.key});
-
-  @override
-  _ExamState createState() => _ExamState();
-}
-
-class _ExamState extends State<Exam> {
-  final TextEditingController cardNumberController = TextEditingController();
-  final TextEditingController expiryDateController = TextEditingController();
-  final TextEditingController cvvController = TextEditingController();
-  final TextEditingController cardHolderNameController =
-      TextEditingController();
-
-  // Validation and SnackBar logic
-  void validateAndSubmit() {
-    String cardNumber = cardNumberController.text;
-    String expiryDate = expiryDateController.text;
-    String cvv = cvvController.text;
-    String cardHolderName = cardHolderNameController.text;
-
-    if (cardNumber.isEmpty ||
-        expiryDate.isEmpty ||
-        cvv.isEmpty ||
-        cardHolderName.isEmpty) {
-      // Show error SnackBar if any field is empty
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill in all the fields')),
-      );
-    } else {
-      // If all fields are filled, navigate to Mine2 page with values
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Mine2(
-            cardNumber: cardNumber,
-            expiryDate: expiryDate,
-            cvv: cvv,
-            cardHolderName: cardHolderName,
-          ),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey,
-      ),
-      backgroundColor: Colors.white70,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(15),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, left: 20),
-                    child: Text(
-                      "Add new card",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Divider(
-                      color: Colors.black,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 10),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: cardNumberController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            hintText: "Card Number",
-                            suffixIcon: Icon(Icons.credit_card),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextField(
-                          controller: expiryDateController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            hintText: "MM/YY",
-                            suffixIcon: Icon(Icons.date_range),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextField(
-                          controller: cvvController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            hintText: "CVV",
-                            suffixIcon: Icon(Icons.lock),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextField(
-                          controller: cardHolderNameController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            hintText: "Cardholder's Full Name",
-                            suffixIcon: Icon(Icons.person),
-                          ),
-                        ),
-                        SizedBox(height: 30),
-                        InkWell(
-                          onTap:
-                              validateAndSubmit, // Trigger validation when tapped
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              height: 50,
-                              width: double.infinity,
-                              color: Colors.blue,
-                              child: Center(
-                                child: Text(
-                                  "Add card",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class Mine2 extends StatelessWidget {
-  final String cardNumber;
-  final String expiryDate;
-  final String cvv;
-  final String cardHolderName;
-
-  const Mine2({
-    Key? key,
-    required this.cardNumber,
-    required this.expiryDate,
-    required this.cvv,
-    required this.cardHolderName,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Card Details"),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              height: 400,
-              width: double.infinity,
-              color: Colors.blue,
-              child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Text(
+                  errorMessage!,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20),
+              child: Center(
+                child: Table(
+                  border: TableBorder.all(),
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                    TableRow(
                       children: [
-                        Text(
-                          "UZCARD",
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              "Bomdod : ",
+                              style: TextStyle(
+                                  fontFamily: "name2",
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              bomdod,
+                              style: TextStyle(
+                                  fontFamily: "name2",
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
-                    Text(
-                      "Card Number:",
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      " $cardNumber",
-                      style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    TableRow(
                       children: [
-                        Text(
-                          "$cardHolderName ",
-                          style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Quyosh : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
                         ),
-                        Text(
-                          "CVV",
-                          style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              quyosh_chiqishi,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    TableRow(
                       children: [
-                        Text(
-                          "$cvv ",
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Peshin : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
                         ),
-                        Text(
-                          "$expiryDate",
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              peshin,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 30),
-                      child: Text(
-                        "Aloqa bank",
-                        style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Asr : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              asr,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Shom : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              shom,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Xufton : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              xufton,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Sana : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              milodiy_sana,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Kun : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              kun,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Manzil : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              manzil,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Arabcha oy : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              oy,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Oyning kuni : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              vaqt.toString(),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'Hijriy yil : ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              hijriy_yil,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
-          ),
+          ],
         ),
-      ),
-    );
-  }
-}
-
-class AnotherPage extends StatelessWidget {
-  final String cardNumber;
-
-  AnotherPage({required this.cardNumber});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Card Number Details'),
-      ),
-      body: Center(
-        child: Text('Card Number: $cardNumber'),
       ),
     );
   }
